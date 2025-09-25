@@ -1,10 +1,9 @@
 // src/bot.js
 
 const TelegramBot = require('node-telegram-bot-api');
-const http = require('http'); // Added this line for render fix
-// ...existing code...
 
-// Add this block after your bot initialization but before the command handlers
+// ...Render fix...
+const http = require('http');
 const PORT = process.env.PORT || 3000;
 const server = http.createServer((req, res) => {
     res.writeHead(200, {'Content-Type': 'text/plain'});
@@ -14,8 +13,8 @@ const server = http.createServer((req, res) => {
 server.listen(PORT, () => {
     console.log(`🌐 HTTP server running on port ${PORT}`);
 });
+// ...Finish render fix...
 
-// ...existing code...
 const geminiService = require('./ai-services/gemini.service.js');
 const mistralService = require('./ai-services/mistral.service.js');
 const { processSolverResponse } = require('./solvers/fantasysolver.js');
@@ -41,7 +40,7 @@ const aiConfigurations = {
 };
 
 let currentService = 'gemini';
-let currentModel = aiConfigurations.gemini.flash;
+let currentModel = aiConfigurations.gemini.pro;
 
 // /start
 bot.onText(/\/start/, (msg) => {
