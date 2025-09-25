@@ -1,19 +1,21 @@
-const express = require('express')
-const app = express()
-const port = process.env.PORT || 4000
-
-app.get('/', (req, res) => {
-  res.send('Hello World!')
-})
-
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
-
-
 // src/bot.js
 
 const TelegramBot = require('node-telegram-bot-api');
+const http = require('http'); // Added this line for render fix
+// ...existing code...
+
+// Add this block after your bot initialization but before the command handlers
+const PORT = process.env.PORT || 3000;
+const server = http.createServer((req, res) => {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('FL Solver Bot is running!\n');
+});
+
+server.listen(PORT, () => {
+    console.log(`🌐 HTTP server running on port ${PORT}`);
+});
+
+// ...existing code...
 const geminiService = require('./ai-services/gemini.service.js');
 const mistralService = require('./ai-services/mistral.service.js');
 const { processSolverResponse } = require('./solvers/fantasysolver.js');
