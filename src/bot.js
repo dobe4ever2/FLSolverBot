@@ -1,21 +1,3 @@
-// Add these lines to your bot.js file
-const express = require('express');
-const app = express();
-
-// Simple health check endpoint
-app.get('/', (req, res) => {
-  res.send('🚀 FL Solver Bot is alive and solving poker hands!');
-});
-
-// Listen on the port Render assigns
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Health check server running on port ${PORT}`);
-});
-
-// Your existing bot code stays the same below this...
-
-
 // src/bot.js
 
 const TelegramBot = require('node-telegram-bot-api');
