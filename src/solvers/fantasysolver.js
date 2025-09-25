@@ -237,4 +237,74 @@ function solveOptimizedV2(parsedCards) {
   
 }
 
-module.exports = { solveOptimizedV2, parseCard };
+// --- New Helper Functions for Fantasy Solver ---
+const { extractTripleBackticks, normalizeAIResponse } = require('../utils/parser');
+const { formatCardWithColor } = require('../utils/formatter');
+
+/**
+ * Extracts the card string from raw AI response using triple backticks.
+ * @param {string} rawText - Raw AI model response text.
+ * @returns {string|null} - Extracted card string or null if not found.
+ */
+function extractCardsFromAIResponse(rawText) {
+    return extractTripleBackticks(rawText);
+}
+
+/**
+ * Processes the raw AI response by extracting card data, invoking the solver, and formatting the final message.
+ * @param {string} rawResponse - Raw AI model response text.
+ * @returns {string} - Formatted final message for Telegram.
+ * @throws {Error} - If extraction or processing fails.
+ */
+function processSolverResponse(rawResponse) {
+  // Normalize the AI response to a string for parsing
+  const normalized = normalizeAIResponse(rawResponse);
+  console.log('Normalized AI response for parsing:\n', normalized);
+
+  // Extract the card string enclosed in triple backticks
+  const cardString = extractTripleBackticks(normalized) || extractCardsFromAIResponse(normalized);
+    if (!cardString) {
+    // Provide more context in the error to help debugging
+    throw new Error('Failed to extract card string from AI response. Raw response logged to console.');
+    }
+
+    // Split the card string into individual card codes
+    const cardCodes = cardString.trim().split(/\s+/);
+    if (cardCodes.length < 14 || cardCodes.length > 17) {
+        throw new Error(`Expected between 14 and 17 cards, but found ${cardCodes.length}.`);
+    }
+
+    // Parse card codes into card objects
+    const parsedCards = cardCodes.map(parseCard);
+    if (parsedCards.includes(null)) {
+        throw new Error('One or more cards could not be parsed.');
+    }
+
+    // Invoke the solver
+    const result = solveOptimizedV2(parsedCards);
+    if (!result || !result.best) {
+        throw new Error('No valid arrangement found by the solver.');
+    }
+
+    // Format final message
+    const frontFormatted = result.best.front.map(formatCardWithColor).join(' ');
+    const middleFormatted = result.best.middle.map(formatCardWithColor).join(' ');
+    const backFormatted = result.best.back.map(formatCardWithColor).join(' ');
+    const discardsFormatted = result.best.discards.map(formatCardWithColor).join(' ');
+    const repeatText = result.best.isRepeat ? '✅ (Repeat Fantasyland EV)' : '';
+
+    const finalMessage = `*Optimal Arrangement Found!*
+
+\`${frontFormatted}\`
+\`${middleFormatted}\`
+\`${backFormatted}\`
+
+*Discards:* \`${discardsFormatted}\`
+
+*Score:* ${result.best.finalEV.toFixed(2)} pts ${repeatText}`;
+
+    return finalMessage;
+}
+
+// Export new helper functions along with existing ones
+module.exports = { solveOptimizedV2, parseCard, extractCardsFromAIResponse, processSolverResponse };

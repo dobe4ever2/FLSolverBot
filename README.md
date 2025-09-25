@@ -1,6 +1,6 @@
 To run the Telegram bot locally in this workspace, use the command:
 
-`node src/index.js`
+`node src/bot.js`
 
 # Overview
 
