@@ -41,7 +41,7 @@ const aiConfigurations = {
 };
 
 let currentService = 'gemini';
-let currentModel = aiConfigurations.gemini.pro;
+let currentModel = aiConfigurations.gemini.flash;
 
 // /start
 bot.onText(/\/start/, (msg) => {
