@@ -1,22 +1,22 @@
 // src/bot.js
 
 const TelegramBot = require('node-telegram-bot-api');
+const http = require('http'); // Added this line for render fix
+// ...existing code...
 
-// ...Render fix...
-const http = require('http');
-const PORT = process.env.PORT || 3000;
-const server = http.createServer((req, res) => {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end('FL Solver Bot is running!\n');
-});
+// Add this block after your bot initialization but before the command handlers
+// const PORT = process.env.PORT || 3000;
+// const server = http.createServer((req, res) => {
+//     res.writeHead(200, {'Content-Type': 'text/plain'});
+//     res.end('FL Solver Bot is running!\n');
+// });
 
-server.listen(PORT, () => {
-    console.log(`🌐 HTTP server running on port ${PORT}`);
-});
-// ...Finish render fix...
+// server.listen(PORT, () => {
+//     console.log(`🌐 HTTP server running on port ${PORT}`);
+// });
 
+// ...existing code...
 const geminiService = require('./ai-services/gemini.service.js');
-const mistralService = require('./ai-services/mistral.service.js');
 const { processSolverResponse } = require('./solvers/fantasysolver.js');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
@@ -31,11 +31,7 @@ const bot = new TelegramBot(token, { polling: true });
 const aiConfigurations = {
     gemini: {
         pro: 'gemini-2.5-pro',
-        flash: 'gemini-2.5-flash'
-    },
-    mistral: {
-        small: 'mistral-small-latest',
-        large: 'mistral-large-latest'
+        flash: 'gemini-flash-latest'
     }
 };
 
@@ -57,16 +53,6 @@ bot.onText(/\/gemini_flash/, (msg) => {
     currentService = 'gemini';
     currentModel = aiConfigurations.gemini.flash;
     bot.sendMessage(msg.chat.id, 'Switched to Gemini 2.5 Flash');
-});
-bot.onText(/\/mistral_small/, (msg) => {
-    currentService = 'mistral';
-    currentModel = aiConfigurations.mistral.small;
-    bot.sendMessage(msg.chat.id, 'Switched to Mistral Small');
-});
-bot.onText(/\/mistral_large/, (msg) => {
-    currentService = 'mistral';
-    currentModel = aiConfigurations.mistral.large;
-    bot.sendMessage(msg.chat.id, 'Switched to Mistral Large');
 });
 
 // Photo handler
@@ -101,16 +87,4 @@ bot.on('photo', async (msg) => {
     }
 });
 
-// /solve command for testing raw AI text
-bot.onText(/\/solve (.+)/, (msg, match) => {
-    try {
-        const raw = match[1];
-        const finalMessage = processSolverResponse(raw);
-        bot.sendMessage(msg.chat.id, finalMessage, { parse_mode: 'Markdown' });
-    } catch (err) {
-        console.error('/solve error:', err);
-        bot.sendMessage(msg.chat.id, `Error: ${err.message}`);
-    }
-});
-
-console.log('🚀 FL Solver Bot running (modular)');
+console.log('🚀 FL Solver Bot running');
