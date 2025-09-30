@@ -1,29 +1,12 @@
 // src/bot.js
 
 const TelegramBot = require('node-telegram-bot-api');
-const http = require('http'); // Added this line for render fix
-// ...existing code...
 
-// Add this block after your bot initialization but before the command handlers
-// const PORT = process.env.PORT || 3000;
-// const server = http.createServer((req, res) => {
-//     res.writeHead(200, {'Content-Type': 'text/plain'});
-//     res.end('FL Solver Bot is running!\n');
-// });
-
-// server.listen(PORT, () => {
-//     console.log(`🌐 HTTP server running on port ${PORT}`);
-// });
-
-// ...existing code...
 const geminiService = require('./ai-services/gemini.service.js');
+
 const { processSolverResponse } = require('./solvers/fantasysolver.js');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
-if (!token) {
-    console.error('Error: TELEGRAM_BOT_TOKEN is not set!');
-    process.exit(1);
-}
 
 const bot = new TelegramBot(token, { polling: true });
 
@@ -71,8 +54,6 @@ bot.on('photo', async (msg) => {
         let rawResponse;
         if (currentService === 'gemini') {
             rawResponse = await geminiService.identifyCardsFromImage(imageBuffer, currentModel);
-        } else if (currentService === 'mistral') {
-            rawResponse = await mistralService.identifyCardsFromImage(imageBuffer, currentModel);
         } else {
             throw new Error('Unknown AI service selected');
         }
