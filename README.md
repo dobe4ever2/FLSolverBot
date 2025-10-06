@@ -3,7 +3,7 @@ To run the Telegram bot locally in this workspace, use the command:
 `node src/bot.js`
 
 # Overview
-This is a Telegram bot that solves fantasyland hands for open face chinese poker
+This is a Telegram bot that solves fantasyland hands for open face chinese poker. Currently it only responds to admin's Telegram ID.
 
 # How it works
 1. User sends a screenshot of the poker table to the telegram bot

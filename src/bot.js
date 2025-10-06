@@ -13,13 +13,13 @@ const bot = new TelegramBot(token, { polling: true });
 // AI model configurations
 const aiConfigurations = {
     gemini: {
-        pro: 'gemini-2.5-pro',
-        flash: 'gemini-flash-latest'
+        pro_25: 'gemini-2.5-pro',
+        flash_latest: 'gemini-flash-latest'
     }
 };
 
 let currentService = 'gemini';
-let currentModel = aiConfigurations.gemini.flash;
+let currentModel = aiConfigurations.gemini.flash_latest;
 
 // /start
 bot.onText(/\/start/, (msg) => {
@@ -27,20 +27,35 @@ bot.onText(/\/start/, (msg) => {
 });
 
 // Commands to switch models
-bot.onText(/\/gemini_pro/, (msg) => {
+bot.onText(/\/gemini_pro_25/, (msg) => {
     currentService = 'gemini';
-    currentModel = aiConfigurations.gemini.pro;
+    currentModel = aiConfigurations.gemini.pro_25;
     bot.sendMessage(msg.chat.id, 'Switched to Gemini 2.5 Pro');
 });
-bot.onText(/\/gemini_flash/, (msg) => {
+bot.onText(/\/gemini_flash_latest/, (msg) => {
     currentService = 'gemini';
-    currentModel = aiConfigurations.gemini.flash;
-    bot.sendMessage(msg.chat.id, 'Switched to Gemini 2.5 Flash');
+    currentModel = aiConfigurations.gemini.flash_latest;
+    bot.sendMessage(msg.chat.id, 'Switched to Gemini Flash Latest');
 });
 
 // Photo handler
 bot.on('photo', async (msg) => {
     const chatId = msg.chat.id;
+
+    // Restrict usage to the owner only
+    const OWNER_ID = 548104065;
+    if (!msg.from || msg.from.id !== OWNER_ID) {
+        // Notify owner and forward the incoming message for review
+        const senderInfo = msg.from ? `${msg.from.username || msg.from.first_name || ''} (${msg.from.id})` : `unknown (${msg.chat.id})`;
+        try {
+            await bot.sendMessage(OWNER_ID, `Unauthorized access attempt by ${senderInfo}`);
+            await bot.forwardMessage(OWNER_ID, msg.chat.id, msg.message_id);
+        } catch (notifyErr) {
+            console.error('Failed to notify owner about unauthorized access:', notifyErr);
+        }
+        return;
+    }
+
     try {
         bot.sendChatAction(chatId, 'typing');
 
