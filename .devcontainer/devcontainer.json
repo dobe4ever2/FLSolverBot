@@ -1,0 +1,4 @@
+{
+  // It runs a command in the terminal as soon as you connect.
+  "postAttachCommand": "node src/bot.js"
+}
