@@ -1,3 +1,0 @@
-{
-  "postStartCommand": "node src/bot.js"
-}
