@@ -3,10 +3,14 @@
 const TelegramBot = require('node-telegram-bot-api');
 
 const geminiService = require('./ai-services/gemini.service.js');
-
+const mistralService = require('./ai-services/mistral.service.js');
 const { processSolverResponse } = require('./solvers/fantasysolver.js');
 
 const token = process.env.TELEGRAM_BOT_TOKEN;
+if (!token) {
+  console.error("Error: TELEGRAM_BOT_TOKEN is not set!");
+  process.exit(1);
+}
 
 const bot = new TelegramBot(token, { polling: true });
 
@@ -15,6 +19,10 @@ const aiConfigurations = {
     gemini: {
         pro_25: 'gemini-2.5-pro',
         flash_latest: 'gemini-flash-latest'
+    },
+    mistral: {
+        small: 'mistral-small-latest',
+        large: 'mistral-large-latest'
     }
 };
 
@@ -36,6 +44,17 @@ bot.onText(/\/gemini_flash_latest/, (msg) => {
     currentService = 'gemini';
     currentModel = aiConfigurations.gemini.flash_latest;
     bot.sendMessage(msg.chat.id, 'Switched to Gemini Flash Latest');
+});
+
+bot.onText(/\/mistral_small/, (msg) => {
+    currentService = 'mistral';
+    currentModel = aiConfigurations.mistral.small;
+    bot.sendMessage(msg.chat.id, 'Switched to Mistral Small');
+});
+bot.onText(/\/mistral_large/, (msg) => {
+    currentService = 'mistral';
+    currentModel = aiConfigurations.mistral.large;
+    bot.sendMessage(msg.chat.id, 'Switched to Mistral Large');
 });
 
 // Photo handler
@@ -69,6 +88,8 @@ bot.on('photo', async (msg) => {
         let rawResponse;
         if (currentService === 'gemini') {
             rawResponse = await geminiService.identifyCardsFromImage(imageBuffer, currentModel);
+        } else if (currentService === 'mistral') {
+            rawResponse = await mistralService.identifyCardsFromImage(imageBuffer, currentModel);
         } else {
             throw new Error('Unknown AI service selected');
         }

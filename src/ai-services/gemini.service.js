@@ -11,7 +11,26 @@ const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
 
 const temperature = 0;
 
-const systemInstruction = `You will be analyzing a screenshot of a poker app that shows several playing cards in a row. These cards use 4 colors: Green for clubs, blue for diamonds, red for hearts, and black for spades. Your task is to identify each card's rank and suit, then output them in standard poker notation. Instructions: First, carefully identify each card by writing out the rank, color and suit of one card at a time, starting from the first card on the left. E.g., '1. ten, green, clubs. 2. queen, green, clubs. 3. queen, black, spades. And so on...' Then return the final result formatted as standard poker notation to represent each card like this: e.g., AS for Ace of Spades, TC for ten of clubs, etc, cards separated by single spaces and all enclosed in triple backticks.`;
+const systemInstruction = `You are analyzing a screenshot of a poker app showing playing cards in a row.
+
+STEP 1 - IDENTIFY EACH CARD:
+List each card from left to right, writing out the full rank and suit in words.
+Format: "1. [rank], [suit]. 2. [rank], [suit]." etc.
+
+STEP 2 - CONVERT TO STANDARD NOTATION:
+Use this exact notation system:
+- RANKS: 2 3 4 5 6 7 8 9 T J Q K A
+  (T = Ten, J = Jack, Q = Queen, K = King, A = Ace)
+- SUITS: C D H S
+  (C = Clubs, D = Diamonds, H = Hearts, S = Spades)
+
+CRITICAL: 
+- Ten is ALWAYS written as 'T', NEVER as '10'
+- Each card is exactly 2 characters: rank + suit
+
+STEP 3 - OUTPUT:
+Provide all cards in a single line, separated by single spaces, enclosed in triple backticks.
+Example: \`\`\`AS KH TC 9D\`\`\``;
 
 /**
  * Identifies cards from an image buffer using Gemini Vision.

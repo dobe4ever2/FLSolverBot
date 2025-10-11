@@ -12,12 +12,6 @@ function extractTripleBackticks(text) {
     return match && match[1] ? match[1].trim() : null;
 }
 
-/**
- * Normalize various AI SDK response shapes into a plain text string.
- * - If input is a string, return as-is.
- * - If it's an array, try to join text fields, or fallback to JSON.
- * - If it's an object, try common properties (.text, .content), or JSON.stringify.
- */
 function normalizeAIResponse(resp) {
     if (resp == null) return '';
     if (typeof resp === 'string') return resp;
